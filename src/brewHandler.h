@@ -7,8 +7,6 @@
 
 #pragma once
 
-#include <hardware/pinmapping.h>
-
 enum BrewSwitchState {
     kBrewSwitchIdle = 10,
     kBrewSwitchBrew = 20,

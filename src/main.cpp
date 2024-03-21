@@ -173,10 +173,12 @@ Relay valveRelay(valveRelayPin, PUMP_VALVE_SSR_TYPE);
 
 GPIOPin* powerSwitchPin;
 GPIOPin* brewSwitchPin;
+GPIOPin* waterSwitchPin;
 GPIOPin* steamSwitchPin;
 
 Switch* powerSwitch;
 Switch* brewSwitch;
+Switch* waterSwitch;
 Switch* steamSwitch;
 
 TempSensor* tempSensor;
@@ -344,6 +346,7 @@ double aggKd = aggTv * aggKp;
 PID bPID(&temperature, &pidOutput, &setpoint, aggKp, aggKi, aggKd, 1, DIRECT);
 
 #include "brewHandler.h"
+#include "switchHandler.h"
 
 // Embedded HTTP Server
 #include "embeddedWebserver.h"
@@ -453,9 +456,7 @@ const unsigned long intervalDisplay = 500;
 #endif
 #endif
 
-#include "powerHandler.h"
 #include "scaleHandler.h"
-#include "steamHandler.h"
 
 // Emergency stop if temp is too high
 void testEmergencyStop() {
@@ -1333,7 +1334,7 @@ void handleMachineState() {
 
             brewDetection();
 
-            if (pidON || steamON || isBrewDetected) {
+            if (pidON || steamON || isBrewDetected || currStateBrewSwitch > kBrewSwitchIdle || currStateWaterSwitch == HIGH) { // TODO: waterswitch toggle should also reset standbytimer
                 pidON = 1;
                 resetStandbyTimer();
                 u8g2.setPowerSave(0);
@@ -1965,6 +1966,11 @@ void setup() {
         steamSwitch = new IOSwitch(*steamSwitchPin, STEAMSWITCH_TYPE, STEAMSWITCH_MODE);
     }
 
+    if (FEATURE_WATERSWITCH) {
+        waterSwitchPin = new GPIOPin(PIN_WATERSWITCH, GPIOPin::IN_HARDWARE);
+        waterSwitch = new IOSwitch(*waterSwitchPin, WATERSWITCH_TYPE, WATERSWITCH_MODE);
+    }
+
     // IF optocoupler selected
     if (BREWDETECTION_TYPE == 3) {
         if (optocouplerType == HIGH) {
@@ -2198,6 +2204,7 @@ void looppid() {
 
     checkSteamSwitch();
     checkPowerSwitch();
+    checkWaterSwitch();
 
     // set setpoint depending on steam or brew mode
     if (steamON == 1) {
