@@ -13,7 +13,12 @@
 #define FW_BRANCH     "MASTER"
 
 // STL includes
+#include <iostream>
 #include <map>
+#include <functional>
+#include <variant>
+#include <cstring>
+#include <sstream>
 
 // Libraries & Dependencies
 #include "Logger.h"
@@ -349,8 +354,9 @@ struct cmp_str {
 // MQTT
 #include "mqtt.h"
 
-std::map<const char*, std::function<editable_t*()>, cmp_str> mqttVars = {};
-std::map<const char*, std::function<double()>, cmp_str> mqttSensors = {};
+std::map<const char*, std::variant<std::function<editable_t*()>, std::function<double()>>, cmp_str> mqttValues;
+//std::map<const char*, std::function<editable_t*()>, cmp_str> mqttVars = {};
+//std::map<const char*, std::function<double()>, cmp_str> mqttSensors = {};
 
 unsigned long lastTempEvent = 0;
 unsigned long tempEventInterval = 1000;
@@ -1522,68 +1528,71 @@ void setup() {
 #endif
 
     // Editable values reported to MQTT
-    mqttVars["pidON"] = [] { return &editableVars.at("PID_ON"); };
-    mqttVars["brewSetpoint"] = [] { return &editableVars.at("BREW_SETPOINT"); };
-    mqttVars["brewTempOffset"] = [] { return &editableVars.at("BREW_TEMP_OFFSET"); };
-    mqttVars["steamON"] = [] { return &editableVars.at("STEAM_MODE"); };
-    mqttVars["steamSetpoint"] = [] { return &editableVars.at("STEAM_SETPOINT"); };
-    mqttVars["brewPidDelay"] = [] { return &editableVars.at("PID_BD_DELAY"); };
-    mqttVars["backflushOn"] = [] { return &editableVars.at("BACKFLUSH_ON"); };
-    mqttVars["startUsePonM"] = [] { return &editableVars.at("START_USE_PONM"); };
-    mqttVars["startKp"] = [] { return &editableVars.at("START_KP"); };
-    mqttVars["startTn"] = [] { return &editableVars.at("START_TN"); };
-    mqttVars["aggKp"] = [] { return &editableVars.at("PID_KP"); };
-    mqttVars["aggTn"] = [] { return &editableVars.at("PID_TN"); };
-    mqttVars["aggTv"] = [] { return &editableVars.at("PID_TV"); };
-    mqttVars["aggIMax"] = [] { return &editableVars.at("PID_I_MAX"); };
-    mqttVars["steamKp"] = [] { return &editableVars.at("STEAM_KP"); };
-    mqttVars["standbyModeOn"] = [] { return &editableVars.at("STANDBY_MODE_ON"); };
+    //mqttVars["pidON"] = [] { return &editableVars.at("PID_ON"); };
+    //mqttVars["brewSetpoint"] = [] { return &editableVars.at("BREW_SETPOINT"); };
+    //mqttVars["brewTempOffset"] = [] { return &editableVars.at("BREW_TEMP_OFFSET"); };
+    //mqttVars["steamON"] = [] { return &editableVars.at("STEAM_MODE"); };
+    //mqttVars["steamSetpoint"] = [] { return &editableVars.at("STEAM_SETPOINT"); };
+    //mqttVars["brewPidDelay"] = [] { return &editableVars.at("PID_BD_DELAY"); };
+    //mqttVars["backflushOn"] = [] { return &editableVars.at("BACKFLUSH_ON"); };
+    //mqttVars["startUsePonM"] = [] { return &editableVars.at("START_USE_PONM"); };
+    //mqttVars["startKp"] = [] { return &editableVars.at("START_KP"); };
+    //mqttVars["startTn"] = [] { return &editableVars.at("START_TN"); };
+    //mqttVars["aggKp"] = [] { return &editableVars.at("PID_KP"); };
+    //mqttVars["aggTn"] = [] { return &editableVars.at("PID_TN"); };
+    //mqttVars["aggTv"] = [] { return &editableVars.at("PID_TV"); };
+    //mqttVars["aggIMax"] = [] { return &editableVars.at("PID_I_MAX"); };
+    //mqttVars["steamKp"] = [] { return &editableVars.at("STEAM_KP"); };
+    //mqttVars["standbyModeOn"] = [] { return &editableVars.at("STANDBY_MODE_ON"); };
 
-    if (FEATURE_BREWCONTROL == 1) {
-        mqttVars["brewtime"] = [] { return &editableVars.at("BREW_TIME"); };
-        mqttVars["preinfusionpause"] = [] { return &editableVars.at("BREW_PREINFUSIONPAUSE"); };
-        mqttVars["preinfusion"] = [] { return &editableVars.at("BREW_PREINFUSION"); };
-    }
+    //if (FEATURE_BREWCONTROL == 1) {
+    //    mqttVars["brewtime"] = [] { return &editableVars.at("BREW_TIME"); };
+    //    mqttVars["preinfusionpause"] = [] { return &editableVars.at("BREW_PREINFUSIONPAUSE"); };
+    //    mqttVars["preinfusion"] = [] { return &editableVars.at("BREW_PREINFUSION"); };
+    //}
 
-    if (FEATURE_SCALE == 1) {
-        mqttVars["weightSetpoint"] = [] { return &editableVars.at("SCALE_WEIGHTSETPOINT"); };
-        mqttVars["scaleCalibration"] = [] { return &editableVars.at("SCALE_CALIBRATION"); };
-#if SCALE_TYPE == 0
-        mqttVars["scale2Calibration"] = [] { return &editableVars.at("SCALE2_CALIBRATION"); };
-#endif
-        mqttVars["scaleKnownWeight"] = [] { return &editableVars.at("SCALE_KNOWN_WEIGHT"); };
-        mqttVars["scaleTareOn"] = [] { return &editableVars.at("TARE_ON"); };
-        mqttVars["scaleCalibrationOn"] = [] { return &editableVars.at("CALIBRATION_ON"); };
-    }
-
-    if (FEATURE_BREWDETECTION == 1) {
-        mqttVars["pidUseBD"] = [] { return &editableVars.at("PID_BD_ON"); };
-        mqttVars["aggbKp"] = [] { return &editableVars.at("PID_BD_KP"); };
-        mqttVars["aggbTn"] = [] { return &editableVars.at("PID_BD_TN"); };
-        mqttVars["aggbTv"] = [] { return &editableVars.at("PID_BD_TV"); };
-
-        if (BREWDETECTION_TYPE == 1) {
-            mqttVars["brewTimer"] = [] { return &editableVars.at("PID_BD_TIME"); };
-            mqttVars["brewLimit"] = [] { return &editableVars.at("PID_BD_SENSITIVITY"); };
-        }
-    }
-
-    // Values reported to MQTT
-    mqttSensors["temperature"] = [] { return temperature; };
-    mqttSensors["heaterPower"] = [] { return pidOutput / 10; };
-    mqttSensors["standbyModeTimeRemaining"] = [] { return standbyModeRemainingTimeMillis / 1000; };
-    mqttSensors["currentKp"] = [] { return bPID.GetKp(); };
-    mqttSensors["currentKi"] = [] { return bPID.GetKi(); };
-    mqttSensors["currentKd"] = [] { return bPID.GetKd(); };
-    mqttSensors["machineState"] = [] { return machineState; };
-
-#if FEATURE_PRESSURESENSOR == 1
-    mqttSensors["pressure"] = [] { return inputPressureFilter; };
-#endif
-
-#if FEATURE_SCALE == 1
-    mqttSensors["currentWeight"] = [] { return weight; };
-#endif
+    //if (FEATURE_SCALE == 1) {
+    //    mqttVars["weightSetpoint"] = [] { return &editableVars.at("SCALE_WEIGHTSETPOINT"); };
+    //    mqttVars["scaleCalibration"] = [] { return &editableVars.at("SCALE_CALIBRATION"); };
+//#if SCALE_TYPE == 0
+//        mqttVars["scale2Calibration"] = [] { return &editableVars.at("SCALE2_CALIBRATION"); };
+//#endif
+//        mqttVars["scaleKnownWeight"] = [] { return &editableVars.at("SCALE_KNOWN_WEIGHT"); };
+//        mqttVars["scaleTareOn"] = [] { return &editableVars.at("TARE_ON"); };
+//        mqttVars["scaleCalibrationOn"] = [] { return &editableVars.at("CALIBRATION_ON"); };
+//    }
+//
+//    if (FEATURE_BREWDETECTION == 1) {
+//        mqttVars["pidUseBD"] = [] { return &editableVars.at("PID_BD_ON"); };
+//        mqttVars["aggbKp"] = [] { return &editableVars.at("PID_BD_KP"); };
+//        mqttVars["aggbTn"] = [] { return &editableVars.at("PID_BD_TN"); };
+//        mqttVars["aggbTv"] = [] { return &editableVars.at("PID_BD_TV"); };
+//
+//        if (BREWDETECTION_TYPE == 1) {
+//            mqttVars["brewTimer"] = [] { return &editableVars.at("PID_BD_TIME"); };
+//            mqttVars["brewLimit"] = [] { return &editableVars.at("PID_BD_SENSITIVITY"); };
+//        }
+//    }
+//
+//    // Values reported to MQTT
+   mqttValues["temperature"] = [&temperature]() -> double {
+        return temperature;
+    };
+//    mqttSensors["temperature"] = [] { return temperature; };
+//    mqttSensors["heaterPower"] = [] { return pidOutput / 10; };
+//    mqttSensors["standbyModeTimeRemaining"] = [] { return standbyModeRemainingTimeMillis / 1000; };
+//    mqttSensors["currentKp"] = [] { return bPID.GetKp(); };
+//    mqttSensors["currentKi"] = [] { return bPID.GetKi(); };
+//    mqttSensors["currentKd"] = [] { return bPID.GetKd(); };
+//    mqttSensors["machineState"] = [] { return machineState; };
+//
+//#if FEATURE_PRESSURESENSOR == 1
+//    mqttSensors["pressure"] = [] { return inputPressureFilter; };
+//#endif
+//
+//#if FEATURE_SCALE == 1
+//    mqttSensors["currentWeight"] = [] { return weight; };
+//#endif
 
     initTimer1();
 
