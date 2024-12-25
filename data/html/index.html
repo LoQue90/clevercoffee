@@ -1,6 +1,6 @@
 %HEADER%
     %VAR_HEADER_VUE_NUMBER_INPUT%
-    %VAR_HEADER_UPLOT%    
+    %VAR_HEADER_UPLOT%
 
     <script type="module">
         if (window.appCreated == true) {
@@ -72,8 +72,10 @@
                                             <td><span id="pid_state"></span></td>
                                             <td>
                                                 <form action="/togglePid" method="post">
-                                                    <input type="hidden" id="varPID_ON" name="varPID_ON" />
-                                                    <input type="submit" class="btn btn-primary" :value="param.value == 1 ? 'Off' : 'On'" id="pid_toggle" />
+                                                    <input type="hidden" id="varPID_ON" name="varPID_ON" :value="param.value" />
+                                                    <input type="checkbox" id="pid_toggle" class="toggle-switch" :checked="param.value == 1"
+                                                        data-toggle="toggle" data-on="On" data-off="Off" data-onstyle="primary" data-offstyle="secondary"
+                                                        @change="updateToggle('PID_ON', $event.target.checked)" />
                                                 </form>
                                             </td>
                                         </template>
@@ -82,8 +84,10 @@
                                             <td><span id="steam_state"></span></td>
                                             <td>
                                                 <form action="/toggleSteam" method="post">
-                                                    <input type="hidden" id="varSTEAM_MODE" name="varSTEAM_MODE" />
-                                                    <input type="submit" class="btn btn-primary" :value="param.value == 1 ? 'Off' : 'On'" id="steam_toggle" />
+                                                    <input type="hidden" id="varSTEAM_MODE" name="varSTEAM_MODE" :value="param.value" />
+                                                    <input type="checkbox" id="steam_toggle" class="toggle-switch" :checked="param.value == 1"
+                                                        data-toggle="toggle" data-on="On" data-off="Off" data-onstyle="primary" data-offstyle="secondary"
+                                                        @change="updateToggle('STEAM_MODE', $event.target.checked)" />
                                                 </form>
                                             </td>
                                         </template>
@@ -92,8 +96,10 @@
                                             <td><span id="backflush_state"></span></td>
                                             <td>
                                                 <form action="/toggleBackflush" method="post">
-                                                    <input type="hidden" id="varBACKFLUSH_ON" name="varBACKFLUSH_ON" />
-                                                    <input type="submit" class="btn btn-primary" :value="param.value == 1 ? 'Off' : 'On'" id="backflush_toggle" />
+                                                    <input type="hidden" id="varBACKFLUSH_ON" name="varBACKFLUSH_ON" :value="param.value" />
+                                                    <input type="checkbox" id="backflush_toggle" class="toggle-switch" :checked="param.value == 1"
+                                                        data-toggle="toggle" data-on="On" data-off="Off" data-onstyle="primary" data-offstyle="secondary"
+                                                        @change="updateToggle('BACKFLUSH_ON', $event.target.checked)" />
                                                 </form>
                                             </td>
                                         </template>
@@ -102,8 +108,10 @@
                                             <td><span id="tare_state"></span></td>
                                             <td>
                                                 <form action="/toggleTareScale" method="post">
-                                                    <input type="hidden" id="varTARE_ON" name="varTARE_ON" />
-                                                    <input type="submit" class="btn btn-primary" :value="param.value == 1 ? 'Off' : 'On'" id="tare_toggle" />
+                                                    <input type="hidden" id="varTARE_ON" name="varTARE_ON" :value="param.value" />
+                                                    <input type="checkbox" id="tare_toggle" class="toggle-switch" :checked="param.value == 1"
+                                                        data-toggle="toggle" data-on="On" data-off="Off" data-onstyle="primary" data-offstyle="secondary"
+                                                        @change="updateToggle('TARE_ON', $event.target.checked)" />
                                                 </form>
                                             </td>
                                         </template>
@@ -112,8 +120,10 @@
                                             <td><span id="calibration_state"></span></td>
                                             <td>
                                                 <form>
-                                                    <input type="hidden" id="varCALIBRATION_ON" name="varCALIBRATION_ON" />
-                                                    <input type="submit" class="btn btn-primary" :value="param.value == 1 ? 'Off' : 'On'" id="calibration_toggle" @click.prevent="confirmSubmission"/>
+                                                    <input type="hidden" id="varCALIBRATION_ON" name="varCALIBRATION_ON" :value="param.value" />
+                                                    <input type="checkbox" id="calibration_toggle" class="toggle-switch" :checked="param.value == 1"
+                                                        data-toggle="toggle" data-on="On" data-off="Off" data-onstyle="primary" data-offstyle="secondary"
+                                                        @change="updateToggle('CALIBRATION_ON', $event.target.checked)" />
                                                 </form>
                                             </td>
                                         </template>
@@ -158,6 +168,12 @@
                     window.addEventListener('appCreated', () => {
                         import('/js/temp.js?v=1')
                     })
+                }
+                $(document).ready(function () {
+                    $('[data-toggle="toggle"]').bootstrapToggle();
+                });
+                function updateToggle(paramName, isChecked) {
+                    document.getElementById(`var${paramName}`).value = isChecked ? 1 : 0;
                 }
             </script>
         </div>

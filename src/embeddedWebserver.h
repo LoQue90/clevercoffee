@@ -171,6 +171,12 @@ String getHeader(String varName) {
 #else
             return F("<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css\">");
 #endif
+        case (str2int("JQUERY_JS")):
+#if NOINTERNET == 1
+            return F("<script src=\"/js/jquery-3.7.1.slim.min.js\"></script>");
+#else
+            return F("<script src=\"https://code.jquery.com/jquery-3.7.1.slim.min.js\"></script>");
+#endif
         case (str2int("BOOTSTRAP")):
 #if NOINTERNET == 1
             return F("<link href=\"/css/bootstrap-5.2.3.min.css\" rel=\"stylesheet\">");
@@ -202,6 +208,18 @@ String getHeader(String varName) {
             return F("<script src=\"/js/uPlot.1.6.28.min.js\"></script><link rel=\"stylesheet\" href=\"/css/uPlot.min.css\">");
 #else
             return F("<script src=\"https://cdn.jsdelivr.net/npm/uplot@1.6.28/dist/uPlot.iife.min.js\"></script><link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/uplot@1.6.24/dist/uPlot.min.css\">");
+#endif
+        case (str2int("BOOTSTRAP_TOGGLE")):
+#if NOINTERNET == 1
+            return F("<link href=\"/css/bootstrap-toggle.min.css\" rel=\"stylesheet\">");
+#else
+            return F("<link href=\"https://cdnjs.cloudflare.com/ajax/libs/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css\" rel=\"stylesheet\">");
+#endif
+        case (str2int("BOOTSTRAP_TOGGLE_JS")):
+#if NOINTERNET == 1
+            return F("<script src=\"/js/bootstrap-toggle.min.js\"></script>");
+#else
+            return F("<script src=\"https://cdnjs.cloudflare.com/ajax/libs/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js\"></script>");
 #endif
     }
     return "";
