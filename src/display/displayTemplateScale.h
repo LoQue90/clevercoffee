@@ -75,53 +75,47 @@ void printScreen() {
     if (scaleFailure) {
         u8g2.print("fault");
     }
-    else {
-        u8g2.print(currWeight, 0);
-        u8g2.print(" g");
+    else if (machineState == kManualFlush) {
+        // Shown flush time
+        u8g2.setDrawColor(0);
+        u8g2.drawBox(32, 26, 100, 40);
+        u8g2.setDrawColor(1);
+        u8g2.setCursor(32, 26);
+        u8g2.print(langstring_manual_flush);
+        u8g2.setCursor(82, 26);
+        u8g2.print(timeBrewed / 1000, 0);
+        u8g2.print(" s");
     }
-
-    if (featureBrewControl) {
+    else if (shouldDisplayBrewTimer()) {
         // Shown brew time and weight
-        if (shouldDisplayBrewTimer()) {
-
+        if (featureBrewControl) {
             // weight
             u8g2.setCursor(32, 26);
             u8g2.print(langstring_weight);
             u8g2.setCursor(82, 26);
             u8g2.print(weightBrewed, 0);
-
+    
             if (weightSetpoint > 0) {
                 u8g2.print("/");
                 u8g2.print(weightSetpoint, 0);
-                u8g2.print(" g");
             }
+            u8g2.print(" g");
+    
             // time
             u8g2.setCursor(32, 36);
             u8g2.print(langstring_brew);
             u8g2.setCursor(82, 36);
             u8g2.print(timeBrewed / 1000, 0);
-
+    
             if (brewTime > 0) {
                 u8g2.print("/");
                 u8g2.print(totalBrewTime / 1000, 0);
-                u8g2.print(" s");
             }
-        }
-        // Shown flush time
-        if (machineState == kManualFlush) {
-            u8g2.setDrawColor(0);
-            u8g2.drawBox(32, 26, 100, 40);
-            u8g2.setDrawColor(1);
-            u8g2.setCursor(32, 26);
-            u8g2.print(langstring_manual_flush);
-            u8g2.setCursor(82, 26);
-            u8g2.print(timeBrewed / 1000, 0);
             u8g2.print(" s");
+    
         }
-    }
-    else {
+        else {
         // Brew Timer with optocoupler
-        if (shouldDisplayBrewTimer()) {
             // weight
             u8g2.setCursor(32, 26);
             u8g2.print(langstring_weight);
@@ -135,8 +129,13 @@ void printScreen() {
             u8g2.print(timeBrewed / 1000, 0);
             u8g2.print(" s");
         }
+    
     }
-
+    else {
+        u8g2.print(currWeight, 0);
+        u8g2.print(" g");
+    }
+    
 #if (FEATURE_PRESSURESENSOR == 1)
     u8g2.setCursor(32, 46);
     u8g2.print(langstring_pressure);
