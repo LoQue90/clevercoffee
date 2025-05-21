@@ -7,7 +7,8 @@
 
 #pragma once
 
-// Define some Displayoptions
+// Define some display options
+bool blinkingEnabled = false;
 int blinkingtemp = 1;           // 0: blinking near setpoint, 1: blinking far away from setpoint
 float blinkingtempoffset = 0.3; // offset for blinking
 
@@ -34,7 +35,7 @@ void printScreen() {
     u8g2.clearBuffer();
 
     // draw (blinking) temp
-    if (((fabs(temperature - setpoint) < blinkingtempoffset && blinkingtemp == 0) || (fabs(temperature - setpoint) >= blinkingtempoffset && blinkingtemp == 1)) && !FEATURE_STATUS_LED) {
+    if (blinkingEnabled && ((fabs(temperature - setpoint) < blinkingtempoffset && blinkingtemp == 0) || (fabs(temperature - setpoint) >= blinkingtempoffset && blinkingtemp == 1)) && !FEATURE_STATUS_LED) {
         if (isrCounter < 500) {
             if (temperature < 99.999) {
                 u8g2.setCursor(8, 22);
